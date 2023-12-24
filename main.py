@@ -1,106 +1,54 @@
-from tls_client import Session, response
-from colorama import Fore, init
-from bs4 import BeautifulSoup
-from random import randint
-import subprocess
-import requests
+import tkinter as tk
+from tkinter import filedialog
 import os
-import re
+from snaptik import SnapTikReversed  # Make sure to replace 'your_script' with the actual name of your script file
+from firebase_manager import FirebaseManager
 
-init(autoreset=True)
+def download_video():
+    url = url_entry.get()
+    destination = dest_entry.get()
+    firebase_manager = FirebaseManager()
 
-class SnapTikReversed:
-    def __init__(self, userAgent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'):
-        self.userAgent = userAgent
-        self.client = Session(client_identifier='chrome_109')
-        self.token = self.get_token()
-        self.base = []
-        self.url = ""
+    if not url:
+        status_label.config(text="Please enter a TikTok URL")
+        return
 
-    def get_token(self) -> response:
-        try:
-            response = self.client.get("https://snaptik.app")
-            soup = BeautifulSoup(response.text, "lxml")
-            for _input in soup.find_all("input"):
-                if _input.get("name") == "token":
-                    self.token = _input.get("value")
-            return self.token
-        except requests.exceptions.RequestException as e:
-            print(f"Request error: {e}")
-            return None
+    if firebase_manager.is_url_downloaded(url):
+        status_label.config(text="This video has already been downloaded.")
+    else:
+        downloader = SnapTikReversed()
+        result = downloader.get_video(url, destination)
+        if result:  # Check if download was successful
+            firebase_manager.add_downloaded_url(url)
+            status_label.config(text="Download successful: " + result)
+        else:
+            status_label.config(text="Download failed.")
 
-    def send_request(self, video: str) -> response:
-        try:
-            headers = {
-                'authority': 'snaptik.app',
-                'accept': '*/*',
-                'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                'dnt': '1',
-                'origin': 'https://snaptik.app',
-                'referer': 'https://snaptik.app/',
-                'sec-ch-ua': '"Opera";v="99", "Chromium";v="113", "Not-A.Brand";v="24"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"Windows"',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-origin'
-            }
-            response = self.client.get('https://snaptik.app/abc2.php', headers=headers, params={
-                'url': video,
-                'token': self.token
-            })
-            _var = re.findall(r'\(\".*?,.*?,.*?,.*?,.*?.*?\)', response.text)
-            self.base = []
-            for e in (_var[0].split(",")):
-                self.base.append(str(e).replace("(", "").replace(")", "").replace('"', ""))
-            return self.base
-        except requests.exceptions.RequestException as e:
-            print(f"Request error: {e}")
-            return None
+def set_default_destination():
+    default_path = os.path.dirname(os.path.realpath(__file__))
+    dest_entry.delete(0, tk.END)
+    dest_entry.insert(0, default_path)
 
-    def decode(self, variable: list):
-        try:
-            output = subprocess.check_output([
-                'node', 'decode.js',
-                str(variable[0]), str(variable[1]), str(variable[2]), str(variable[3]), str(variable[4]), str(variable[5])
-            ])
-            result = (output).decode("utf-8")
-            return result
-        except Exception as e:
-            print(f"Decode error: {e}")
-            return None
+root = tk.Tk()
+root.title("TikTok Downloader")
 
-    def get_video(self, video: str, _path: str=None) -> response:
-        try:
-            _page = self.send_request(video)
-            _page = self.decode(_page)
-            soup = BeautifulSoup(_page, "lxml")
-        
-            for a in soup.find_all("a"):
-                url = a.get("href")
-                url = str(url).replace('\\', "").replace('"', "")
+# URL Entry
+tk.Label(root, text="TikTok URL:").pack()
+url_entry = tk.Entry(root, width=50)
+url_entry.pack()
 
-                if "snaptik" in url:
-                    self.url = url
-        
-            response = requests.get(self.url)
-            id = f"{randint(1000000, 9999999)}.mp4"
+# Destination Entry
+tk.Label(root, text="Destination:").pack()
+dest_entry = tk.Entry(root, width=50)
+dest_entry.pack()
+set_default_destination()  # Set default destination
 
-            if _path:
-                file_path = os.path.join(_path, id)
-            else:
-                file_path = id
+# Download Button
+download_button = tk.Button(root, text="Download", command=download_video)
+download_button.pack()
 
-            with open(file_path, "wb") as file:
-                file.write(response.content)
+# Status Label
+status_label = tk.Label(root, text="")
+status_label.pack()
 
-            return f">> [{Fore.GREEN}{video}{Fore.RESET}] success | {file_path}"
-        except requests.exceptions.RequestException as e:
-            print(f"Request error: {e}")
-            return None
-
-# if __name__ == "__main__":
-#     video_url = "https://www.tiktok.com/@dicquewuopamela/video/7303890278354537730"
-#     downloader = SnapTikReversed()
-#     result = downloader.get_video(video_url)
-#     print(result)
+root.mainloop()
