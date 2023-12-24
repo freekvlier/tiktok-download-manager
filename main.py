@@ -99,8 +99,8 @@ class SnapTikReversed:
             print(f"Request error: {e}")
             return None
 
-if __name__ == "__main__":
-    video_url = "https://www.tiktok.com/@dicquewuopamela/video/7303890278354537730"
-    downloader = SnapTikReversed()
-    result = downloader.get_video(video_url)
-    print(result)
+# if __name__ == "__main__":
+#     video_url = "https://www.tiktok.com/@dicquewuopamela/video/7303890278354537730"
+#     downloader = SnapTikReversed()
+#     result = downloader.get_video(video_url)
+#     print(result)
