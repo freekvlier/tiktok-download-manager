@@ -29,6 +29,14 @@ def set_default_destination():
     dest_entry.delete(0, tk.END)
     dest_entry.insert(0, default_path)
 
+def select_all(event):
+    # deselect any existing selection
+    event.widget.selection_clear()
+    # select all text in the widget
+    event.widget.select_range(0, tk.END)
+    # move the cursor to the end
+    event.widget.icursor(tk.END)
+
 root = tk.Tk()
 root.title("TikTok Downloader")
 
@@ -50,5 +58,9 @@ download_button.pack()
 # Status Label
 status_label = tk.Label(root, text="")
 status_label.pack()
+
+# Bind the select_all function to both focus and click events
+url_entry.bind("<FocusIn>", select_all)
+url_entry.bind("<Button-1>", select_all)
 
 root.mainloop()
