@@ -13,3 +13,6 @@ Optional:
 
 - update requirements: 
 pip freeze > requirements.txt
+
+
+original source: https://ask.replit.com/t/tiktok-video-downloader/68546
