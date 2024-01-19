@@ -1,8 +1,15 @@
+import os
+from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Initialize Firebase Admin using the credentials JSON you downloaded
-cred = credentials.Certificate('video-download-manager-9af41-firebase-adminsdk-n1vba-62a864c90f.json')
+# Load environment variables from .env file
+load_dotenv()
+
+credentials_path = os.getenv('FIREBASE_CREDENTIALS_PATH')
+
+# Initialize Firebase Admin using the credentials JSON specified in the .env file
+cred = credentials.Certificate(credentials_path)
 firebase_admin.initialize_app(cred)
 
 # Connect to Firestore Database
@@ -20,17 +27,3 @@ class FirebaseManager:
     def add_downloaded_url(self, url):
         # Add a new URL to the database
         self.collection.add({'url': url})
-
-# Example usage:
-if __name__ == "__main__":
-    manager = FirebaseManager()
-    test_url = "http://example.com/video123"
-
-    if manager.is_url_downloaded(test_url):
-        print("This video has already been downloaded.")
-    else:
-        print("Downloading video...")
-        # Code to download the video
-        # ...
-        print("Video downloaded successfully.")
-        manager.add_downloaded_url(test_url)

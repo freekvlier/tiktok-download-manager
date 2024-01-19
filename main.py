@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 import os
-from snaptik import SnapTikReversed  # Make sure to replace 'your_script' with the actual name of your script file
+from snaptik import SnapTikReversed
 from firebase_manager import FirebaseManager
 
 def download_video():
@@ -29,12 +29,10 @@ def set_default_destination():
     dest_entry.delete(0, tk.END)
     dest_entry.insert(0, default_path)
 
+# select all text in the widget
 def select_all(event):
-    # deselect any existing selection
     event.widget.selection_clear()
-    # select all text in the widget
     event.widget.select_range(0, tk.END)
-    # move the cursor to the end
     event.widget.icursor(tk.END)
 
 root = tk.Tk()

@@ -44,8 +44,15 @@ pip install -r requirements.txt
 
 ### 4. Set up Firebase:
 1. Create a Firebase project.
-2.  Download the Firebase credentials JSON file.
-3. Save the JSON file as firebase_credentials.json in the project root.
+2. Download the Firebase credentials JSON file.
+3. Save the JSON file in the project root or in a location of your choice.
+
+### 5. Create .env file
+Create a .env file in the project root and add the following line, replacing 'your_credentials.json' with the actual name of your credentials file:
+
+```bash
+FIREBASE_CREDENTIALS_PATH=your_credentials.json
+```
 
 ## Usage
 Run the GUI using:
