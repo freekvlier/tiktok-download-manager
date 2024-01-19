@@ -60,6 +60,3 @@ Run the GUI using:
 ```bash
 python3 main.py
 ```
-
-## Additional Notes
-Ensure that the Firebase credentials file (firebase_credentials.json) is present in the project root.
